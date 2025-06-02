@@ -47,11 +47,9 @@ struct Election_Result_DisplayerApp: App {
                     }, label: {
                         Text("Help")
                     })
-                    .keyboardShortcut("/")
                 }
         }
         Window("Control Panel", id: "controlpanel"){
-            //@State var isWindowVisible = false;
             PanelView(googleraces: ElectionData(), localraces: ElectionData()).fixedSize()
                 .environmentObject(current);
         }.defaultSize(width: 800, height: 500).windowResizability(.contentSize)

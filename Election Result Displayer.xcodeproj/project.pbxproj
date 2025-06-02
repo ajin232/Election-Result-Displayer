@@ -17,6 +17,7 @@
 		490E78402DE4ED650041CB7A /* Election_Result_DisplayerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 490E783F2DE4ED650041CB7A /* Election_Result_DisplayerUITests.swift */; };
 		490E78422DE4ED650041CB7A /* Election_Result_DisplayerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 490E78412DE4ED650041CB7A /* Election_Result_DisplayerUITestsLaunchTests.swift */; };
 		490E78532DE506660041CB7A /* stars.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 490E78522DE506660041CB7A /* stars.mp4 */; };
+		4966FBD42DEE68260050FCC2 /* template.csv in Resources */ = {isa = PBXBuildFile; fileRef = 4966FBD32DEE68260050FCC2 /* template.csv */; };
 		49F9F0742DE7DECB00A51B50 /* Race.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F9F0732DE7DECB00A51B50 /* Race.swift */; };
 		49F9F0762DE94B4F00A51B50 /* ProcessCSV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F9F0752DE94B4F00A51B50 /* ProcessCSV.swift */; };
 /* End PBXBuildFile section */
@@ -53,6 +54,7 @@
 		490E783F2DE4ED650041CB7A /* Election_Result_DisplayerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Election_Result_DisplayerUITests.swift; sourceTree = "<group>"; };
 		490E78412DE4ED650041CB7A /* Election_Result_DisplayerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Election_Result_DisplayerUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		490E78522DE506660041CB7A /* stars.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = stars.mp4; sourceTree = "<group>"; };
+		4966FBD32DEE68260050FCC2 /* template.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = template.csv; sourceTree = "<group>"; };
 		49F9F0732DE7DECB00A51B50 /* Race.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Race.swift; sourceTree = "<group>"; };
 		49F9F0752DE94B4F00A51B50 /* ProcessCSV.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessCSV.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -114,6 +116,7 @@
 				490E782C2DE4ED640041CB7A /* Election_Result_Displayer.entitlements */,
 				490E78292DE4ED640041CB7A /* Election_Result_Displayer.xcdatamodeld */,
 				490E78522DE506660041CB7A /* stars.mp4 */,
+				4966FBD32DEE68260050FCC2 /* template.csv */,
 				490E78242DE4ED640041CB7A /* Preview Content */,
 			);
 			path = "Election Result Displayer";
@@ -250,6 +253,7 @@
 			files = (
 				490E78262DE4ED640041CB7A /* Preview Assets.xcassets in Resources */,
 				490E78532DE506660041CB7A /* stars.mp4 in Resources */,
+				4966FBD42DEE68260050FCC2 /* template.csv in Resources */,
 				490E78232DE4ED640041CB7A /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
