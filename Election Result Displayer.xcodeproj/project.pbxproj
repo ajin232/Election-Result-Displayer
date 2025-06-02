@@ -16,6 +16,9 @@
 		490E78362DE4ED650041CB7A /* Election_Result_DisplayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 490E78352DE4ED650041CB7A /* Election_Result_DisplayerTests.swift */; };
 		490E78402DE4ED650041CB7A /* Election_Result_DisplayerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 490E783F2DE4ED650041CB7A /* Election_Result_DisplayerUITests.swift */; };
 		490E78422DE4ED650041CB7A /* Election_Result_DisplayerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 490E78412DE4ED650041CB7A /* Election_Result_DisplayerUITestsLaunchTests.swift */; };
+		490E78532DE506660041CB7A /* stars.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 490E78522DE506660041CB7A /* stars.mp4 */; };
+		49F9F0742DE7DECB00A51B50 /* Race.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F9F0732DE7DECB00A51B50 /* Race.swift */; };
+		49F9F0762DE94B4F00A51B50 /* ProcessCSV.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F9F0752DE94B4F00A51B50 /* ProcessCSV.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +52,9 @@
 		490E783B2DE4ED650041CB7A /* Election Result DisplayerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Election Result DisplayerUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		490E783F2DE4ED650041CB7A /* Election_Result_DisplayerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Election_Result_DisplayerUITests.swift; sourceTree = "<group>"; };
 		490E78412DE4ED650041CB7A /* Election_Result_DisplayerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Election_Result_DisplayerUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		490E78522DE506660041CB7A /* stars.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = stars.mp4; sourceTree = "<group>"; };
+		49F9F0732DE7DECB00A51B50 /* Race.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Race.swift; sourceTree = "<group>"; };
+		49F9F0752DE94B4F00A51B50 /* ProcessCSV.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessCSV.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,10 +107,13 @@
 			children = (
 				490E781E2DE4ED600041CB7A /* Election_Result_DisplayerApp.swift */,
 				490E78202DE4ED600041CB7A /* ContentView.swift */,
+				49F9F0732DE7DECB00A51B50 /* Race.swift */,
+				49F9F0752DE94B4F00A51B50 /* ProcessCSV.swift */,
 				490E78222DE4ED640041CB7A /* Assets.xcassets */,
 				490E78272DE4ED640041CB7A /* Persistence.swift */,
 				490E782C2DE4ED640041CB7A /* Election_Result_Displayer.entitlements */,
 				490E78292DE4ED640041CB7A /* Election_Result_Displayer.xcdatamodeld */,
+				490E78522DE506660041CB7A /* stars.mp4 */,
 				490E78242DE4ED640041CB7A /* Preview Content */,
 			);
 			path = "Election Result Displayer";
@@ -240,6 +249,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				490E78262DE4ED640041CB7A /* Preview Assets.xcassets in Resources */,
+				490E78532DE506660041CB7A /* stars.mp4 in Resources */,
 				490E78232DE4ED640041CB7A /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -265,10 +275,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				49F9F0762DE94B4F00A51B50 /* ProcessCSV.swift in Sources */,
 				490E78282DE4ED640041CB7A /* Persistence.swift in Sources */,
 				490E78212DE4ED600041CB7A /* ContentView.swift in Sources */,
 				490E781F2DE4ED600041CB7A /* Election_Result_DisplayerApp.swift in Sources */,
 				490E782B2DE4ED640041CB7A /* Election_Result_Displayer.xcdatamodeld in Sources */,
+				49F9F0742DE7DECB00A51B50 /* Race.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -358,10 +370,10 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.4;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -415,9 +427,10 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.4;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
 			};
@@ -437,11 +450,14 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Election Result Displayer";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "me.andrewjin.Election-Result-Displayer";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -464,11 +480,14 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Election Result Displayer";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "me.andrewjin.Election-Result-Displayer";
 				PRODUCT_NAME = "$(TARGET_NAME)";

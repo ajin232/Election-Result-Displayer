@@ -5,16 +5,61 @@
 //  Created by Andrew on 5/26/25.
 //
 
-import SwiftUI
+import SwiftUI;
+import AppKit;
 
 @main
 struct Election_Result_DisplayerApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate;
     let persistenceController = PersistenceController.shared
-
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-                .environment(\.managedObjectContext, persistenceController.container.viewContext)
+    final class AppDelegate: NSObject, NSApplicationDelegate {
+        func applicationWillUpdate(_ notification: Notification) {
+            if let menu = NSApplication.shared.mainMenu {
+                if let view = menu.items.first(where: { $0.title == "View"}) {
+                    menu.removeItem(view);
+                }
+            }
         }
+        func applicationDidFinishLaunching(_ notification: Notification) {
+            @Environment(\.dismissWindow) var dismissWindow;
+            dismissWindow(id: "controlpanel");
+        }
+    }
+    var body: some Scene {
+        @NSApplicationDelegateAdaptor(AppDelegate.self) var delegate;
+        @Environment(\.openWindow) var openWindow;
+        let current: CurrentRace = CurrentRace();
+        Window("Election Result Displayer", id: "main"){
+            ContentView()
+                .fixedSize()
+                .environment(\.managedObjectContext, persistenceController.container.viewContext)
+                .environmentObject(current);
+        }.defaultSize(width: 1280, height: 720).windowResizability(.contentSize)
+        .commands {
+            CommandGroup(after: CommandGroupPlacement.newItem) {
+                Button("Open Control Panel") {
+                    openWindow(id: "controlpanel");
+                }
+            }
+            CommandGroup(replacing: .help) {
+                    Button(action: {
+                        openWindow(id: "controlpanel")
+                    }, label: {
+                        Text("Help")
+                    })
+                    .keyboardShortcut("/")
+                }
+        }
+        Window("Control Panel", id: "controlpanel"){
+            //@State var isWindowVisible = false;
+            PanelView(googleraces: ElectionData(), localraces: ElectionData()).fixedSize()
+                .environmentObject(current);
+        }.defaultSize(width: 800, height: 500).windowResizability(.contentSize)
+    }
+}
+
+class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        return true
     }
 }
