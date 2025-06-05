@@ -55,7 +55,7 @@ struct ContentView: View {
                     )
                 });
             // title of election race being displayed
-            Text(current.race.racename).font(.system(size: 34, weight: .semibold)).frame(maxWidth: 638, maxHeight: 50).position(x: 640, y: 123).foregroundColor(.black);
+            Text(current.race.racename).font(.system(size: 35, weight: .semibold)).frame(maxWidth: 640, maxHeight: 50).position(x: 640, y: 123).foregroundColor(.black);
             // names/vote counts/percents of the candidates
             Text(current.race.demname).font(.system(size: 29)).multilineTextAlignment(.center).foregroundStyle(.white).frame(maxWidth: 310, maxHeight: 40).position(x: 311, y: 526);
             Text(current.race.gopname).font(.system(size: 29)).multilineTextAlignment(.center).foregroundStyle(.white).frame(maxWidth: 310, maxHeight: 40).position(x: 971, y: 526);
