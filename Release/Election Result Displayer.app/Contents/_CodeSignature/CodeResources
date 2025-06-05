@@ -28,10 +28,6 @@
 		<data>
 		C3THjGKhDYPwqtsISiMzNYkMoP8=
 		</data>
-		<key>Resources/template.csv</key>
-		<data>
-		PvJ51niuzPPr0L9TEPzECan4Lcs=
-		</data>
 	</dict>
 	<key>files2</key>
 	<dict>
@@ -75,13 +71,6 @@
 			<key>hash2</key>
 			<data>
 			88cdPHoiZmtcne0m/JQa5hgV4Fhx/MSGWrMUju8Fx58=
-			</data>
-		</dict>
-		<key>Resources/template.csv</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			pp/F1zVIheIGZ8vZeJo00BIfL6z/a/e1uYovh3HMZc4=
 			</data>
 		</dict>
 	</dict>

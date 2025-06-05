@@ -437,7 +437,7 @@ struct helpView: View{
                         Text("• Name of the race, Name of the Democrat, Democrat vote percent, Democrat vote count, Link to a picture of the Democrat, Name of the Republican, Republican vote percent, Republican vote count, Link to a picture of the Republican, Who the winner is (D for Democrat/R for Republican/N for neither)\n");
                         Text("Press the button below to view and download a premade template file");
                         Button(action: {
-                            openURL(URL(string: "https://github.com/ajin232/Election-Result-Displayer/blob/main/Election%20Result%20Displayer/template.csv")!);
+                            openURL(URL(string: "https://github.com/ajin232/Election-Result-Displayer/blob/main/Release/template.csv")!);
                         }, label: {
                             Text("Open template download webpage");
                         }).buttonStyle(.borderedProminent);
