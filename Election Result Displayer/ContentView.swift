@@ -121,14 +121,17 @@ struct importGoogleView: View{
     @State var disabled2: Bool = true;
     @State var task: Task<(), any Error>?;
     @State var selection: Race?;
+    @State var infotext: String = "Consult the Help tab if you run into any difficulties. ";
     @ObservedObject var races: ElectionData;
     @EnvironmentObject var current: CurrentRace;
+    let defaultinfo: String = "Consult the Help tab if you run into any difficulties. ";
     var body: some View{
         VStack(alignment: .leading){
             GroupBox(label:
                         Label("Import input from Google Sheets", systemImage: "arrow.down.doc.fill").font(.title2)
             ) {
                 Form{
+                    
                     HStack{
                         TextField(text: $address, prompt: Text("Google sheets link (make sure it is public)")) {
                             Text("Address");
@@ -146,9 +149,13 @@ struct importGoogleView: View{
                                     if returncode == 1{
                                         throw AppError.fetchError("csv has no data");
                                     }
+                                    infotext = defaultinfo;
                                     races.replace(with: temp);
-                                } catch {
-                                    print(error);
+                                } catch AppError.fetchError(let message){
+                                    print(message);
+                                    infotext = defaultinfo + "ERROR: " + message;
+                                } catch{
+                                    infotext = defaultinfo + "ERROR: unknown error";
                                 }
                                 disabled1 = false;
                                 disabled2 = true;
@@ -158,9 +165,9 @@ struct importGoogleView: View{
                         }).disabled(disabled1);
                         
                         Button(action: {
-                            print(task?.isCancelled);
+                            //print(task?.isCancelled);
                             task?.cancel();
-                            print(task?.isCancelled);
+                            //print(task?.isCancelled);
                             disabled1 = false;
                             disabled2 = true;
                         }, label: {
@@ -170,6 +177,7 @@ struct importGoogleView: View{
                     
                 }
                 .disableAutocorrection(true);
+                Text(infotext);
                 List(selection: $selection, content: {
                     ForEach(races.data, id: \.self) { elem in
                         Text(elem.menuname);
@@ -177,7 +185,7 @@ struct importGoogleView: View{
                 });
                 Text("You can also use the ↑ and ↓ arrow keys to navigate the list, and the return key to display.");
                 Button(action: {
-                    print(selection);
+                    //print(selection);
                     if selection != nil{
                         current.replace(selection!);
                     }
@@ -196,8 +204,10 @@ struct localView: View{
     @State var showfinder: Bool = false;
     @State var selection: Race?;
     @State var disabled: Bool = true;
+    @State var infotext: String = "Consult the Help tab if you run into any difficulties. ";
     @ObservedObject var races: ElectionData;
     @EnvironmentObject var current: CurrentRace;
+    let defaultinfo: String = "Consult the Help tab if you run into any difficulties. ";
     var body: some View{
         VStack(alignment: .leading){
             GroupBox(label:
@@ -218,11 +228,13 @@ struct localView: View{
                             case .success(let path):
                                 csvpath = path;
                                 pathstring = path.absoluteString;
-                                print(csvpath);
+                                //print(csvpath);
                                 disabled = false;
+                                infotext = defaultinfo;
                                 print(path);
                             case .failure(let error):
                                 disabled = true;
+                                infotext = defaultinfo + "ERROR: invalid file or file path";
                                 print(error);
                             }
                         })
@@ -240,8 +252,12 @@ struct localView: View{
                                     throw AppError.fetchError("csv has no data");
                                 }
                                 races.replace(with: temp);
-                            } catch {
-                                print(error);
+                                infotext = defaultinfo;
+                            } catch AppError.fetchError(let message){
+                                print(message);
+                                infotext = defaultinfo + "ERROR: " + message;
+                            } catch{
+                                infotext = defaultinfo + "ERROR: unknown error"
                             }
                         }, label: {
                             Text("Read selected file");
@@ -250,6 +266,7 @@ struct localView: View{
                     
                 }
                 .disableAutocorrection(true);
+                Text(infotext);
                 List(selection: $selection, content: {
                     ForEach(races.data, id: \.self) { elem in
                         Text(elem.menuname);
@@ -257,7 +274,7 @@ struct localView: View{
                 });
                 Text("You can also use the ↑ and ↓ arrow keys to navigate the list, and the return key to display.");
                 Button(action: {
-                    print(selection);
+                    //print(selection);
                     if selection != nil{
                         current.replace(selection!);
                     }
