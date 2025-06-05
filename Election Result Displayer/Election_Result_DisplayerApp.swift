@@ -50,7 +50,7 @@ struct Election_Result_DisplayerApp: App {
                 }
         }
         Window("Control Panel", id: "controlpanel"){
-            PanelView(googleraces: ElectionData(), localraces: ElectionData()).fixedSize()
+            PanelView(googleraces: ElectionData(), localraces: ElectionData(), manualrace: RaceString(racename: "Enter name", index: 0, demname: "", dempercent: "", demvotes: "", dempic: "", gopname: "", goppercent: "", gopvotes: "", goppic: "", winner: "N")).fixedSize()
                 .environmentObject(current);
         }.defaultSize(width: 800, height: 500).windowResizability(.contentSize)
     }

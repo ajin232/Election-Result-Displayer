@@ -4,6 +4,8 @@
 //
 //  Created by Andrew on 5/26/25.
 //
+//  using semicolons for aesthetic purposes
+//  using explicit type declarations because type inference is a disgusting abomination
 
 import Foundation;
 import SwiftUI;
@@ -18,6 +20,7 @@ struct ContentView: View {
     @State private var showAlert: Bool = true;
     @StateObject var googleraces: ElectionData = ElectionData();
     @StateObject var localraces: ElectionData = ElectionData();
+    @StateObject var manualrace: RaceString = RaceString(racename: "Enter name", index: 0, demname: "", dempercent: "", demvotes: "", dempic: "", gopname: "", goppercent: "", gopvotes: "", goppic: "", winner: "N");
     @EnvironmentObject var current: CurrentRace;
     var body: some View {
         ZStack{
@@ -53,7 +56,12 @@ struct ContentView: View {
             Text(String(current.race.demvotes) + " votes").font(.title).fontWeight(.semibold).foregroundColor(Color(red: 0.1607843137254902, green: 0.5019607843137255, blue: 0.7254901960784313)).multilineTextAlignment(.leading).frame(maxWidth: 240, maxHeight: 35, alignment: .leading).position(x: 286, y: 580);
             Text(String(current.race.dempercent) + "%").font(.title).foregroundColor(Color(red: 0.1607843137254902, green: 0.5019607843137255, blue: 0.7254901960784313)).multilineTextAlignment(.leading).frame(maxWidth: 240, maxHeight: 35, alignment: .leading).position(x: 286, y: 610);
             Text(String(current.race.gopvotes) + " votes").font(.title).fontWeight(.semibold).foregroundColor(Color(red: 0.7529411764705882, green: 0.2235294117647059, blue: 0.16862745098039217)).multilineTextAlignment(.leading).frame(maxWidth: 240, maxHeight: 35, alignment: .leading).position(x: 946, y: 580);
-            Text(String(current.race.goppercent) + "%").font(.title).foregroundColor(Color(red: 0.7529411764705882, green: 0.2235294117647059, blue: 0.16862745098039217)).multilineTextAlignment(.leading).frame(maxWidth: 240, maxHeight: 35, alignment: .leading).position(x: 946, y: 610)
+            Text(String(current.race.goppercent) + "%").font(.title).foregroundColor(Color(red: 0.7529411764705882, green: 0.2235294117647059, blue: 0.16862745098039217)).multilineTextAlignment(.leading).frame(maxWidth: 240, maxHeight: 35, alignment: .leading).position(x: 946, y: 610);
+            if current.race.winner == "D"{
+                Image(systemName: "checkmark").position(x: 440, y: 595).font(.system(size: 34)).foregroundColor(Color(red: 0.9451, green: 0.7686, blue: 0.0589));
+            } else if current.race.winner == "R" {
+                Image(systemName: "checkmark").position(x: 1100, y: 595).font(.system(size: 34)).foregroundColor(Color(red: 0.9451, green: 0.7686, blue: 0.0589));
+            }
         }.frame(minWidth: 1280, maxWidth: 1280, minHeight: 720, maxHeight: 720);
         
         
@@ -64,6 +72,7 @@ struct PanelView: View{
     @State var selection: Int = 0;
     @ObservedObject var googleraces: ElectionData;
     @ObservedObject var localraces: ElectionData;
+    @ObservedObject var manualrace: RaceString;
     var body: some View {
         NavigationSplitView {
             List(selection: $selection) {
@@ -94,7 +103,7 @@ struct PanelView: View{
             case 1:
                 localView(races: localraces);
             case 2:
-                manualView();
+                manualView(selection: manualrace);
             case 3:
                 settingsView();
             case 4:
@@ -113,8 +122,8 @@ struct importGoogleView: View{
     @State var disabled1: Bool = false;
     @State var disabled2: Bool = true;
     @State var task: Task<(), any Error>?;
+    @State var selection: Race?;
     @ObservedObject var races: ElectionData;
-    @State var selection: Int?;
     @EnvironmentObject var current: CurrentRace;
     var body: some View{
         VStack(alignment: .leading){
@@ -163,49 +172,17 @@ struct importGoogleView: View{
                     
                 }
                 .disableAutocorrection(true);
-//                    Menu("pick one") {
-//                        ForEach(races, id: \.self) { elem in
-//                            Button(elem.menuname) { }
-//                        }
-//                    }
-//                    Button(action: {print("meow")}, label: {
-//                        Text("↑")
-//                    })
-//                    Button(action: {print("meow")}, label: {
-//                        Text("↓")
-//                    })
                 List(selection: $selection, content: {
-                    ForEach(races.data, id: \.index) { elem in
+                    ForEach(races.data, id: \.self) { elem in
                         Text(elem.menuname);
                     }
                 });
                 Text("You can also use the ↑ and ↓ arrow keys to navigate the list, and the return key to display.");
                 Button(action: {
                     print(selection);
-                    var found: Bool = false;
-                    if selection != nil && selection! <= races.data.count{
-                        for i in stride(from: selection! - 1, to: races.data.count, by: 1){
-                            if races.data[i].index == selection{
-                                current.replace(races.data[i]);
-                                found = true;
-                                break;
-                            }
-                        }
-                        if !found && selection! > 1{
-                            for i in stride(from: selection! - 1, through: 0, by: -1){
-                                if races.data[i].index == selection{
-                                    current.replace(races.data[i]);
-                                    break;
-                                }
-                            }
-                        }
+                    if selection != nil{
+                        current.replace(selection!);
                     }
-//                        for elem in races.data{
-//                            if elem.index == selection{
-//                                current.replace(elem);
-//                                break;
-//                            }
-//                        }
                 }, label: {
                     Text("Display").font(.title2).padding().frame(maxWidth: .infinity);
                 }).buttonStyle(.bordered).keyboardShortcut(.defaultAction);
@@ -219,7 +196,7 @@ struct localView: View{
     @State var pathstring: String = "";
     @State var csvpath: URL?;
     @State var showfinder: Bool = false;
-    @State var selection: Int?;
+    @State var selection: Race?;
     @State var disabled: Bool = true;
     @ObservedObject var races: ElectionData;
     @EnvironmentObject var current: CurrentRace;
@@ -276,30 +253,15 @@ struct localView: View{
                 }
                 .disableAutocorrection(true);
                 List(selection: $selection, content: {
-                    ForEach(races.data, id: \.index) { elem in
+                    ForEach(races.data, id: \.self) { elem in
                         Text(elem.menuname);
                     }
                 });
                 Text("You can also use the ↑ and ↓ arrow keys to navigate the list, and the return key to display.");
                 Button(action: {
                     print(selection);
-                    var found: Bool = false;
-                    if selection != nil && selection! <= races.data.count{
-                        for i in stride(from: selection! - 1, to: races.data.count, by: 1){
-                            if races.data[i].index == selection{
-                                current.replace(races.data[i]);
-                                found = true;
-                                break;
-                            }
-                        }
-                        if !found && selection! > 1{
-                            for i in stride(from: selection! - 1, through: 0, by: -1){
-                                if races.data[i].index == selection{
-                                    current.replace(races.data[i]);
-                                    break;
-                                }
-                            }
-                        }
+                    if selection != nil{
+                        current.replace(selection!);
                     }
                 }, label: {
                     Text("Display").font(.title2).padding().frame(maxWidth: .infinity);
@@ -312,46 +274,71 @@ struct localView: View{
 
 struct manualView: View{
     @State var test: String = "";
+    @ObservedObject var selection: RaceString;
+    let example: RaceString = RaceString(racename: "Enter name", index: 0, demname: "", dempercent: "", demvotes: "", dempic: "", gopname: "", goppercent: "", gopvotes: "", goppic: "", winner: "N");
+    @EnvironmentObject var current: CurrentRace;
     var body: some View{
         VStack(alignment: .leading){
             GroupBox(label:
                         Label("Manual input", systemImage: "keyboard.fill").font(.title2)
             ) {
-                Text("meow");
                 Form{
-                    TextField(text: $test, prompt: Text("")) {
+                    TextField(text: $selection.racename, prompt: Text("")) {
                         Text("Title of race");
                     }
                 }
+                Text("");
                 Form{
                     VStack(alignment: .leading){
                         HStack{
-                            Text("Democrat ");
-                            TextField(text: $test, prompt: Text("")) {
+                            Text("Democrat    ");
+                            TextField(text: $selection.demname, prompt: Text("")) {
                                 Text("Name");
                             }
-                            TextField(text: $test, prompt: Text("")) {
+                            TextField(text: $selection.dempercent, prompt: Text("")) {
                                 Text("%");
                             }
-                            TextField(text: $test, prompt: Text("")) {
+                            TextField(text: $selection.demvotes, prompt: Text("")) {
                                 Text("Votes");
                             }
+                        }
+                        TextField(text: $selection.dempic, prompt: Text("")) {
+                            Text("                       Picture Link");
                         }
                         HStack{
-                            Text("Republican ");
-                            TextField(text: $test, prompt: Text("")) {
+                            Text("Republican  ");
+                            TextField(text: $selection.gopname, prompt: Text("")) {
                                 Text("Name");
                             }
-                            TextField(text: $test, prompt: Text("")) {
+                            TextField(text: $selection.goppercent, prompt: Text("")) {
                                 Text("%");
                             }
-                            TextField(text: $test, prompt: Text("")) {
+                            TextField(text: $selection.gopvotes, prompt: Text("")) {
                                 Text("Votes");
                             }
                         }
+                        TextField(text: $selection.goppic, prompt: Text("")) {
+                            Text("                       Picture Link");
+                        }
+                        Picker("Winner         ", selection: $selection.winner){
+                            Text("Democrat").tag("D");
+                            Text("Republican").tag("R");
+                            Text("Neither").tag("N");
+                        }.pickerStyle(.segmented);
+                        Text("");
                     }
                 }
-                Text("test");
+                Button(action: {
+                    print(selection);
+                    if selection != example{
+                        selection.index = 1;
+                        if (selection.convert() != nil){
+                            current.replace(selection.convert()!);
+                        }
+                    }
+                }, label: {
+                    Text("Display").font(.title2).padding().frame(maxWidth: .infinity);
+                }).buttonStyle(.bordered).keyboardShortcut(.defaultAction);
             }
         }.frame(maxWidth: 800, maxHeight: 500, alignment: .topLeading).padding(12);
     }
@@ -364,9 +351,8 @@ struct settingsView: View{
 }
 
 struct helpView: View{
-    @State var exportlocation: String = "template.csv";
-    @State var defaultlocation: Bool = true;
-    let template: Data = "RACE NAME,DEM NAME,DEM %,DEM VOTES,DEM PICTURE,GOP NAME,GOP %,GOP VOTES,GOP PICTURE\n(EXAMPLE) 2016 Presidential Election,Hillary Clinton,48.2,65853514,https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQtbIYfy2wkMMfWrW7-31tnVI8gE0Iz4HhqHufpIToSVjcjWC_Gq9A4cHxSK8a-3makZxwlAfnlJyOeJW4OHj9rwg,Donald Trump,46.1,62984828,https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Donald_Trump_official_portrait.jpg/250px-Donald_Trump_official_portrait.jpg".data(using: .utf8)!;
+    @Environment(\.openURL) var openURL;
+    let template: Data = "RACE NAME,DEM NAME,DEM %,DEM VOTES,DEM PICTURE,GOP NAME,GOP %,GOP VOTES,GOP PICTURE,WINNER(D/R/N)\n(EXAMPLE) 2016 Presidential Election,Hillary Clinton,48.2,65853514,https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQtbIYfy2wkMMfWrW7-31tnVI8gE0Iz4HhqHufpIToSVjcjWC_Gq9A4cHxSK8a-3makZxwlAfnlJyOeJW4OHj9rwg,Donald Trump,46.1,62984828,https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Donald_Trump_official_portrait.jpg/250px-Donald_Trump_official_portrait.jpg,R".data(using: .utf8)!;
     var body: some View{
         VStack(alignment: .leading){
             GroupBox(label:
@@ -376,57 +362,42 @@ struct helpView: View{
                     VStack(alignment: .leading){
                         Text("CSV file template").font(.title3).fontWeight(.semibold);
                         Text("If you are importing your input from Google Sheets or from a local csv file, use this information to get started. This app is designed to take input from a csv file that is formatted in a predetermined, specific way. That specific format is:");
-                        Text("• Each election race is represented by a row, starting from the second row")
+                        Text("• Each election race is represented by a row, starting from the second row");
                         Text("• The top (first) row is either left blank or is labelled with which value each column represents")
-                        Text("• The columns should be represented by the values in this order:")
-                        Text("• Name of the race, Name of the Democrat, Democrat vote percent, Democrat vote count, Link to a picture of the Democrat, Name of the Republican, Republican vote percent, Republican vote count, Link to a picture of the Republican\n")
-                        Text("To generate a premade template of this format, reference the **Generate Template** section below this one.")
-                        Text("Once you have created the template file, you can use it for either the Google Sheets input tab or the Local CSV input tab. For more information on those tabs, you can read their respective sections in this help guide.\n")
-                        Text("Generate csv file template").font(.title3).fontWeight(.semibold);
-                        HStack{
-                            Text("Export path");
-                            TextField(text: $exportlocation, prompt: Text("template.csv")) {}.disabled(defaultlocation);
-                            Toggle("Use default export path", isOn: $defaultlocation)
-                                .toggleStyle(.checkbox)
-                        }
-                        Text("By default, the file will be created in the same folder that this app is in.")
+                        Text("• The columns should be represented by the values in this order:");
+                        Text("• Name of the race, Name of the Democrat, Democrat vote percent, Democrat vote count, Link to a picture of the Democrat, Name of the Republican, Republican vote percent, Republican vote count, Link to a picture of the Republican, Who the winner is (D for Democrat/R for Republican/N for neither)\n");
+                        Text("Press the button below to view and download a premade template file");
                         Button(action: {
-                            do {
-                                var exporturl: URL = URL.currentDirectory().appending(path: "template.csv");
-                                if defaultlocation == false{
-                                    exporturl = URL.currentDirectory().appending(path: exportlocation);
-                                }
-                                print(exporturl)
-                                try template.write(to: exporturl);
-                            } catch {
-                              print(error)
-                            }
+                            openURL(URL(string: "https://github.com/ajin232/Election-Result-Displayer/blob/main/Election%20Result%20Displayer/template.csv")!);
                         }, label: {
-                            Text("Generate template file");
+                            Text("Open template download webpage");
                         }).buttonStyle(.borderedProminent);
-                        Text("");
+                        Image("downloadlink").resizable().aspectRatio(contentMode: .fit).frame(maxWidth: 300);
+                        Text("Once you have created the template file, you can use it for either the Google Sheets input tab or the Local CSV input tab. For more information on those tabs, you can read their respective sections in this help guide.\n");
                         Text("Warning about commas").font(.title3).fontWeight(.semibold);
-                        Text("DO NOT TYPE COMMAS INTO YOUR SPREADSHEET!").fontWeight(.semibold)
-                        Text("The app will not be able to read your data if you do. This is because of the nature of csv files. The name csv stands for **comma-seperated values**, which means that boundaries of the cells are delineated by commas. That means that if you type a comma in the middle of a cell (e.g. typing \"Al Gore, Jr.\" instead of \"Al Gore Jr.\"), the program will think that that cell is two different cells.\n")
-                        Text("Information about number formatting").fontWeight(.semibold)
-                        Text("Sometimes, Excel or Sheets will force numbers to be formatted with commas (e.g. 123,456 instead of 123456), and this will cause problems. Here is how to fix a cell where commas are being forced into the numbers:\n")
-                        Text("**In Excel:** Right click on the cell -> **Format Cells...** -> In the **Number** tab, look for the **Category** box and click **General** -> **OK**\n")
-                        Text("**In Google Sheets:** Click on the cell -> Go to the menu bar and click **Format** -> **Number** -> **Plain Text**\n")
+                        Text("DO NOT TYPE COMMAS INTO YOUR SPREADSHEET!").fontWeight(.semibold);
+                        Text("The app will not be able to read your data if you do. This is because of the nature of csv files. The name csv stands for **comma-seperated values**, which means that boundaries of the cells are delineated by commas. That means that if you type a comma in the middle of a cell (e.g. typing \"Al Gore, Jr.\" instead of \"Al Gore Jr.\"), the program will think that that cell is two different cells.\n");
+                        Text("Information about number formatting").fontWeight(.semibold);
+                        Text("Sometimes, Excel or Sheets will force numbers to be formatted with commas (e.g. 123,456 instead of 123456), and this will cause problems. Here is how to fix a cell where commas are being forced into the numbers:\n");
+                        Text("**In Excel:** Right click on the cell -> **Format Cells...** -> In the **Number** tab, look for the **Category** box and click **General** -> **OK**\n");
+                        Text("**In Google Sheets:** Click on the cell -> Go to the menu bar and click **Format** -> **Number** -> **Plain Text**\n");
                         Text("Google Sheets input instructions").font(.title3).fontWeight(.semibold);
-                        Text("First, create your template csv file by clicking the **Generate template** button.")
-                        Text("Then, upload that file to your Google Drive, and open it in Google Sheets. You can now start entering data.")
-                        Text("To connect the spreadsheet to the app, click the **Share** button in Google Sheets and create a link where **anyone with the link** can access the document.")
-                        Text("Then, copy that link and paste it into the Google Sheets input tab in the app, and press the **Fetch** button. You should now be able to see the election races listed in the app.")
-                        Text("You can now select any election race you want to present, and then present it by clicking the **Display** button at the bottom of the app.")
-                        Text("To refresh the information after the spreadsheet has been updated, you can simply click the **Fetch** button again.")
-                        Text("If you press the fetch button and the app hangs, it is probably an internet connection problem, or you may have entered an invalid link. In this case, click the **Cancel** button and try again.\n")
+                        Text("First, download the template csv file (or create your own in the format specified above).");
+                        Text("Then, upload that file to your Google Drive, and open it in Google Sheets. You can now start entering data.");
+                        Text("To connect the spreadsheet to the app, click the **Share** button in Google Sheets and create a link where **anyone with the link** can access the document.");
+                        Text("Then, copy that link and paste it into the Google Sheets input tab in the app, and press the **Fetch** button. You should now be able to see the election races listed in the app.");
+                        Text("You can now select any election race you want to present, and then present it by clicking the **Display** button at the bottom of the app.");
+                        Text("To refresh the information after the spreadsheet has been updated, you can simply click the **Fetch** button again.");
+                        Text("If you press the fetch button and the app hangs, it is probably an internet connection problem, or you may have entered an invalid link. In this case, click the **Cancel** button and try again.\n");
                         Text("Local CSV file input instructions").font(.title3).fontWeight(.semibold);
-                        Text("First, create your template csv file by clicking the **Generate template** button.")
-                        Text("Then, open that file with Microsoft Excel and start entering data.")
-                        Text("To connect the file to the app, click the **Choose file** button in the Local CSV input tab, and navigate to where you saved your file. Then, once you have selected your file, click the **Read selected file** button.")
-                        Text("You can now select any election race you want to present, and then present it by clicking the **Display** button at the bottom of the app.")
-                        Text("To refresh the information after the spreadsheet has been updated, you can simply click the **Fetch** button again.")
-                        Text("If you run into an error, check the formatting of your file, or restart the app.")
+                        Text("First, download the template csv file (or create your own in the format specified above).");
+                        Text("Then, open that file with Microsoft Excel and start entering data.");
+                        Text("To connect the file to the app, click the **Choose file** button in the Local CSV input tab, and navigate to where you saved your file. Then, once you have selected your file, click the **Read selected file** button.");
+                        Text("You can now select any election race you want to present, and then present it by clicking the **Display** button at the bottom of the app.");
+                        Text("To refresh the information after the spreadsheet has been updated, you can simply click the **Fetch** button again.");
+                        Text("If you run into an error, check the formatting of your file, or restart the app.\n");
+                        Text("Manual input instructions").font(.title3).fontWeight(.semibold);
+                        Text("This part of the app should be self explanatory. Also, the no-commas rule still holds.\n");
                     }
                 }.frame(maxWidth: 800, alignment: .topLeading);
             }

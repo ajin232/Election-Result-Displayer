@@ -58,12 +58,14 @@ func parseCSVString(pointer: inout Array<Race>, string: String) -> Int{
         for i in stride(from: 1, to: lines.count, by: 1){
             let values = lines[i].split(separator: seperator);
             var index0 = values[0];
+            var index9 = values[9];
             if quotes == true{
                 index0.removeFirst();
+                index9.removeLast();
             }
-            if values.count == 9{ // make sure the row has the right number of columns
+            if values.count == 10{ // make sure the row has the right number of columns
                 // write row data into election data list
-                let temp: Race = Race(racename: String(index0), index: i, demname: String(values[1]), dempercent: Float(values[2]) ?? 0, demvotes: Int(values[3]) ?? 0, dempic: String(values[4]), gopname: String(values[5]), goppercent: Float(values[6]) ?? 0, gopvotes: Int(values[7]) ?? 0, goppic: String(values[8]));
+                let temp: Race = Race(racename: String(index0), index: i, demname: String(values[1]), dempercent: Float(values[2]) ?? 0, demvotes: Int(values[3]) ?? 0, dempic: String(values[4]), gopname: String(values[5]), goppercent: Float(values[6]) ?? 0, gopvotes: Int(values[7]) ?? 0, goppic: String(values[8]), winner: String(index9));
                 pointer.append(temp);
             } else {
                 print("WARNING: invalid data in row " + String(i));
