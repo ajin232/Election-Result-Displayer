@@ -467,6 +467,8 @@ struct helpView: View{
                         Text("If you run into an error, check the formatting of your file, or restart the app.\n");
                         Text("Manual input instructions").font(.title3).fontWeight(.semibold);
                         Text("This part of the app should be self explanatory. Also, the no-commas rule still holds.\n");
+                        Text("Background video").font(.title3).fontWeight(.semibold);
+                        Text("If the background video freezes, quit the app and reopen it.\n")
                         Text("About").font(.title3).fontWeight(.semibold);
                         Text("This app was written by Andrew Jin in June 2025.\n")
                     }
