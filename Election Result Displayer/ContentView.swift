@@ -41,15 +41,15 @@ struct ContentView: View {
                     .clipped();
             }.frame(width: 310, height: 280).position(x: 970, y: 360);
             Image("templatesf").resizable().aspectRatio(contentMode: .fit).frame(width: 1280, height: 720, alignment: .center)
-//                .alert(isPresented: $showAlert, content: {
-//                    Alert(title: Text("Information"),
-//                          message: Text("To input data to be displayed, go to the menu bar, then File -> Open Control Panel"),
-//                          dismissButton: Alert.Button.default(
-//                                  Text("OK"), action: {
-//                                     showAlert = false
-//                        })
-//                    )
-//                });
+                .alert(isPresented: $showAlert, content: {
+                    Alert(title: Text("Information"),
+                          message: Text("To input data to be displayed, go to the menu bar, then File -> Open Control Panel"),
+                          dismissButton: Alert.Button.default(
+                                  Text("OK"), action: {
+                                     showAlert = false
+                        })
+                    )
+                });
             Text(current.race.racename).font(.system(size: 34, weight: .semibold)).frame(maxWidth: 638, maxHeight: 50).position(x: 640, y: 123).foregroundColor(.black);
             Text(current.race.demname).font(.system(size: 29)).multilineTextAlignment(.center).foregroundStyle(.white).frame(maxWidth: 310, maxHeight: 40).position(x: 311, y: 526);
             Text(current.race.gopname).font(.system(size: 29)).multilineTextAlignment(.center).foregroundStyle(.white).frame(maxWidth: 310, maxHeight: 40).position(x: 971, y: 526);
@@ -63,8 +63,6 @@ struct ContentView: View {
                 Image(systemName: "checkmark").position(x: 1100, y: 595).font(.system(size: 34)).foregroundColor(Color(red: 0.9451, green: 0.7686, blue: 0.0589));
             }
         }.frame(minWidth: 1280, maxWidth: 1280, minHeight: 720, maxHeight: 720);
-        
-        
     }
 }
 
