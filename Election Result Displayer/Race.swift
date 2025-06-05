@@ -8,6 +8,7 @@
 import Foundation
 
 struct Race: Hashable{
+    // custom data type to store election race data
     var racename: String;
     var index: Int;
     

@@ -29,6 +29,7 @@ struct Election_Result_DisplayerApp: App {
         @NSApplicationDelegateAdaptor(AppDelegate.self) var delegate;
         @Environment(\.openWindow) var openWindow;
         let current: CurrentRace = CurrentRace();
+        // main window
         Window("Election Result Displayer", id: "main"){
             ContentView()
                 .fixedSize()

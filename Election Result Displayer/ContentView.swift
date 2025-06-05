@@ -24,8 +24,11 @@ struct ContentView: View {
     @EnvironmentObject var current: CurrentRace;
     var body: some View {
         ZStack{
+            // background animation
             NSVideoPlayer();
+            // back of candidate frames + shadows underneath frames
             Image("templatebacking").resizable().aspectRatio(contentMode: .fit).frame(width: 1280, height: 720, alignment: .center);
+            // democrat and republican candidate photos
             AsyncImage(url: URL(string: current.race.dempic)){ result in
                 result.image?
                     .resizable()
@@ -40,8 +43,9 @@ struct ContentView: View {
                     .frame(width: 310, height: 280)
                     .clipped();
             }.frame(width: 310, height: 280).position(x: 970, y: 360);
+            // main graphics layout image
             Image("templatesf").resizable().aspectRatio(contentMode: .fit).frame(width: 1280, height: 720, alignment: .center)
-                .alert(isPresented: $showAlert, content: {
+                .alert(isPresented: $showAlert, content: { // info popup at start
                     Alert(title: Text("Information"),
                           message: Text("To input data to be displayed, go to the menu bar, then File -> Open Control Panel"),
                           dismissButton: Alert.Button.default(
@@ -50,13 +54,16 @@ struct ContentView: View {
                         })
                     )
                 });
+            // title of election race being displayed
             Text(current.race.racename).font(.system(size: 34, weight: .semibold)).frame(maxWidth: 638, maxHeight: 50).position(x: 640, y: 123).foregroundColor(.black);
+            // names/vote counts/percents of the candidates
             Text(current.race.demname).font(.system(size: 29)).multilineTextAlignment(.center).foregroundStyle(.white).frame(maxWidth: 310, maxHeight: 40).position(x: 311, y: 526);
             Text(current.race.gopname).font(.system(size: 29)).multilineTextAlignment(.center).foregroundStyle(.white).frame(maxWidth: 310, maxHeight: 40).position(x: 971, y: 526);
             Text(String(current.race.demvotes) + " votes").font(.title).fontWeight(.semibold).foregroundColor(Color(red: 0.1607843137254902, green: 0.5019607843137255, blue: 0.7254901960784313)).multilineTextAlignment(.leading).frame(maxWidth: 240, maxHeight: 35, alignment: .leading).position(x: 286, y: 580);
             Text(String(current.race.dempercent) + "%").font(.title).foregroundColor(Color(red: 0.1607843137254902, green: 0.5019607843137255, blue: 0.7254901960784313)).multilineTextAlignment(.leading).frame(maxWidth: 240, maxHeight: 35, alignment: .leading).position(x: 286, y: 610);
             Text(String(current.race.gopvotes) + " votes").font(.title).fontWeight(.semibold).foregroundColor(Color(red: 0.7529411764705882, green: 0.2235294117647059, blue: 0.16862745098039217)).multilineTextAlignment(.leading).frame(maxWidth: 240, maxHeight: 35, alignment: .leading).position(x: 946, y: 580);
             Text(String(current.race.goppercent) + "%").font(.title).foregroundColor(Color(red: 0.7529411764705882, green: 0.2235294117647059, blue: 0.16862745098039217)).multilineTextAlignment(.leading).frame(maxWidth: 240, maxHeight: 35, alignment: .leading).position(x: 946, y: 610);
+            // checkmark for winner if there is a winner among the two
             if current.race.winner == "D"{
                 Image(systemName: "checkmark").position(x: 440, y: 595).font(.system(size: 34)).foregroundColor(Color(red: 0.9451, green: 0.7686, blue: 0.0589));
             } else if current.race.winner == "R" {
@@ -67,12 +74,15 @@ struct ContentView: View {
 }
 
 struct PanelView: View{
+    // basis of the control panel window
     @State var selection: Int = 0;
     @ObservedObject var googleraces: ElectionData;
     @ObservedObject var localraces: ElectionData;
     @ObservedObject var manualrace: RaceString;
     var body: some View {
+        // navigation sidebar in control panel
         NavigationSplitView {
+            // menu sets the value of the variable "selection"
             List(selection: $selection) {
                 NavigationLink(value: 0) {
                     Label("Google Sheets input", systemImage: "arrow.down.doc.fill")
@@ -97,6 +107,7 @@ struct PanelView: View{
             }
             .navigationSplitViewColumnWidth(200);
         } detail: {
+            // remainder of the window displays the tab that was selected, according to the "selection" variable
             switch selection{
             case 1:
                 localView(races: localraces);
@@ -116,6 +127,7 @@ struct PanelView: View{
 }
 
 struct importGoogleView: View{
+    // google sheets input tab
     @State var address: String = "";
     @State var disabled1: Bool = false;
     @State var disabled2: Bool = true;
@@ -131,43 +143,55 @@ struct importGoogleView: View{
                         Label("Import input from Google Sheets", systemImage: "arrow.down.doc.fill").font(.title2)
             ) {
                 Form{
-                    
                     HStack{
+                        // web address input field
                         TextField(text: $address, prompt: Text("Google sheets link (make sure it is public)")) {
                             Text("Address");
                         }
+                        // fetch data/refresh button
                         Button(action: {
-                            var result: String = "";
+                            var result: String = ""; // csv data will be fed into this string
+                            // start async fetching task
                             task = Task{
+                                // while task is running, disable fetch button and enable cancel button
                                 disabled2 = false;
                                 disabled1 = true;
                                 do{
+                                    // try to download csv based on the inputted link and feed it into "result" string
+                                    // fetchSheets function is in ProcessCSV.swift, will throw error if link is wrong or not working
                                     try await result = fetchSheets(address);
+                                    // if successful, try to parse the string into custom "race" format
                                     var temp: Array<Race> = [Race]();
-                                    let returncode: Int = parseCSVString(pointer: &temp, string: result);
-                                    print(result);
+                                    let returncode: Int = parseCSVString(pointer: &temp, string: result); // returns 0 if no error
+                                    //print(result);
                                     if returncode == 1{
                                         throw AppError.fetchError("csv has no data");
                                     }
-                                    infotext = defaultinfo;
+                                    // if no error has been thrown so far, assume success
+                                    // replace existing (if any) list of election races with the new ones that were just fetched
                                     races.replace(with: temp);
+                                    // clear any error messages from infotext
+                                    infotext = defaultinfo;
                                 } catch AppError.fetchError(let message){
+                                    // if there was an error, print error to console and try to display it in infotext
                                     print(message);
                                     infotext = defaultinfo + "ERROR: " + message;
                                 } catch{
                                     infotext = defaultinfo + "ERROR: unknown error";
                                 }
+                                // now that the task is done, disable the cancel button and enable the fetch button again
                                 disabled1 = false;
                                 disabled2 = true;
                             }
                         }, label: {
                             Text("Fetch");
                         }).disabled(disabled1);
-                        
+                        // cancel button
                         Button(action: {
-                            //print(task?.isCancelled);
+                            // halt fetch task if it is running
                             task?.cancel();
                             //print(task?.isCancelled);
+                            // reset buttons back to default
                             disabled1 = false;
                             disabled2 = true;
                         }, label: {
@@ -177,16 +201,20 @@ struct importGoogleView: View{
                     
                 }
                 .disableAutocorrection(true);
+                // display info and potential errors
                 Text(infotext);
+                // display list of election races that have been fetched from spreadsheet
                 List(selection: $selection, content: {
                     ForEach(races.data, id: \.self) { elem in
                         Text(elem.menuname);
                     }
                 });
                 Text("You can also use the ↑ and ↓ arrow keys to navigate the list, and the return key to display.");
+                // display button
                 Button(action: {
                     //print(selection);
                     if selection != nil{
+                        // replace the current race being displayed with the one that was selected
                         current.replace(selection!);
                     }
                 }, label: {
@@ -199,6 +227,7 @@ struct importGoogleView: View{
 }
 
 struct localView: View{
+    // local csv input tab
     @State var pathstring: String = "";
     @State var csvpath: URL?;
     @State var showfinder: Bool = false;
@@ -211,49 +240,63 @@ struct localView: View{
     var body: some View{
         VStack(alignment: .leading){
             GroupBox(label:
-                        Label("Import input from CSV file on this computer", systemImage: "internaldrive.fill").font(.title2)
+                        Label("Import input from a CSV file on this computer", systemImage: "internaldrive.fill").font(.title2)
             ) {
                 Form{
                     HStack{
+                        // file selection fields
                         TextField(text: $pathstring, prompt: Text(".csv files only")) {
                             Text("File path");
-                        }.disabled(true);
+                        }.disabled(true); // dont let user type in file path manually, route them through finder window instead
+                        // choose file button
                         Button(action: {
                             showfinder = true;
                         }, label: {
                             Text("Choose file");
                         })
                         .fileImporter(isPresented: $showfinder, allowedContentTypes: [UTType.commaSeparatedText], onCompletion: { result in
+                            // when choose file button is clicked, open finder window to let user select csv file
                             switch result{
                             case .success(let path):
+                                // file path formed successfully
                                 csvpath = path;
                                 pathstring = path.absoluteString;
                                 //print(csvpath);
                                 disabled = false;
                                 infotext = defaultinfo;
-                                print(path);
+                                //print(path);
                             case .failure(let error):
                                 disabled = true;
                                 infotext = defaultinfo + "ERROR: invalid file or file path";
                                 print(error);
                             }
                         })
+                        // read (open) file button
                         Button(action: {
                             do{
+                                // request file access permissions if necessary
                                 guard csvpath!.startAccessingSecurityScopedResource() else {
+                                    // if user denies permission, throw error
                                     throw AppError.fetchError("file access denied")
                                 }
+                                // try to feed file contents into "result" string
                                 let result: String = try String(contentsOf: csvpath!);
+                                // once csv data has been copied, inform macos that file access is no longer needed
                                 csvpath!.stopAccessingSecurityScopedResource();
+                                // if successful, try to parse the string into custom "race" format
                                 var temp: Array<Race> = [Race]();
-                                let returncode: Int = parseCSVString(pointer: &temp, string: result);
-                                print(result);
+                                let returncode: Int = parseCSVString(pointer: &temp, string: result); // returns 0 if no error
+                                //print(result);
                                 if returncode == 1{
                                     throw AppError.fetchError("csv has no data");
                                 }
+                                // if no error has been thrown so far, assume success
+                                // replace existing (if any) list of election races with the new ones that were just fetched
                                 races.replace(with: temp);
+                                // clear any error messages from infotext
                                 infotext = defaultinfo;
                             } catch AppError.fetchError(let message){
+                                // if there was an error, print error to console and try to display it in infotext
                                 print(message);
                                 infotext = defaultinfo + "ERROR: " + message;
                             } catch{
@@ -266,16 +309,20 @@ struct localView: View{
                     
                 }
                 .disableAutocorrection(true);
+                // display info and potential errors
                 Text(infotext);
+                // display list of election races that have been fetched from spreadsheet
                 List(selection: $selection, content: {
                     ForEach(races.data, id: \.self) { elem in
                         Text(elem.menuname);
                     }
                 });
                 Text("You can also use the ↑ and ↓ arrow keys to navigate the list, and the return key to display.");
+                // display button
                 Button(action: {
                     //print(selection);
                     if selection != nil{
+                        // replace the current race being displayed with the one that was selected
                         current.replace(selection!);
                     }
                 }, label: {
@@ -288,6 +335,7 @@ struct localView: View{
 }
 
 struct manualView: View{
+    // manual input tab
     @State var test: String = "";
     @ObservedObject var selection: RaceString;
     let example: RaceString = RaceString(racename: "Enter name", index: 0, demname: "", dempercent: "", demvotes: "", dempic: "", gopname: "", goppercent: "", gopvotes: "", goppic: "", winner: "N");
@@ -297,6 +345,7 @@ struct manualView: View{
             GroupBox(label:
                         Label("Manual input", systemImage: "keyboard.fill").font(.title2)
             ) {
+                // data input fields
                 Form{
                     TextField(text: $selection.racename, prompt: Text("")) {
                         Text("Title of race");
@@ -342,12 +391,14 @@ struct manualView: View{
                         }.pickerStyle(.segmented);
                         Text("");
                     }
-                }
+                }.disableAutocorrection(true);
+                // display button
                 Button(action: {
-                    print(selection);
-                    if selection != example{
+                    //print(selection);
+                    if selection != example{ // if the data isn't the default placeholder data...
                         selection.index = 1;
-                        if (selection.convert() != nil){
+                        if (selection.convert() != nil){ // and the data is formatted correctly...
+                            // then replace the current race being displayed with the one that was inputted
                             current.replace(selection.convert()!);
                         }
                     }
@@ -360,12 +411,14 @@ struct manualView: View{
 }
 
 struct settingsView: View{
+    // change background tab (incomplete)
     var body: some View{
         Text("ability to change background video has yet to be implemented");
     }
 }
 
 struct helpView: View{
+    // help tab
     @Environment(\.openURL) var openURL;
     let template: Data = "RACE NAME,DEM NAME,DEM %,DEM VOTES,DEM PICTURE,GOP NAME,GOP %,GOP VOTES,GOP PICTURE,WINNER(D/R/N)\n(EXAMPLE) 2016 Presidential Election,Hillary Clinton,48.2,65853514,https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQtbIYfy2wkMMfWrW7-31tnVI8gE0Iz4HhqHufpIToSVjcjWC_Gq9A4cHxSK8a-3makZxwlAfnlJyOeJW4OHj9rwg,Donald Trump,46.1,62984828,https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Donald_Trump_official_portrait.jpg/250px-Donald_Trump_official_portrait.jpg,R".data(using: .utf8)!;
     var body: some View{
@@ -374,6 +427,7 @@ struct helpView: View{
                         Label("Help", systemImage: "questionmark.circle").font(.title2)) 
             {
                 ScrollView(.vertical){
+                    // just a bunch of text in a scrollable box
                     VStack(alignment: .leading){
                         Text("CSV file template").font(.title3).fontWeight(.semibold);
                         Text("If you are importing your input from Google Sheets or from a local csv file, use this information to get started. This app is designed to take input from a csv file that is formatted in a predetermined, specific way. That specific format is:");
@@ -413,6 +467,8 @@ struct helpView: View{
                         Text("If you run into an error, check the formatting of your file, or restart the app.\n");
                         Text("Manual input instructions").font(.title3).fontWeight(.semibold);
                         Text("This part of the app should be self explanatory. Also, the no-commas rule still holds.\n");
+                        Text("About").font(.title3).fontWeight(.semibold);
+                        Text("This app was written by Andrew Jin in June 2025.\n")
                     }
                 }.frame(maxWidth: 800, alignment: .topLeading);
             }
@@ -421,6 +477,7 @@ struct helpView: View{
 }
 
 struct NSVideoPlayer: NSViewRepresentable {
+    // for the looping video background
     func makeNSView(context: Context) -> AVPlayerView {
         let url = Bundle.main.url(forResource: "stars", withExtension: "mp4");
         let item = AVPlayerItem(url: url!);
