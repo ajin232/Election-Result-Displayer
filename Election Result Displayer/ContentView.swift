@@ -430,7 +430,7 @@ struct helpView: View{
                     // just a bunch of text in a scrollable box
                     VStack(alignment: .leading){
                         Text("CSV file template").font(.title3).fontWeight(.semibold);
-                        Text("If you are importing your input from Google Sheets or from a local csv file, use this information to get started. This app is designed to take input from a csv file that is formatted in a predetermined, specific way. That specific format is:");
+                        Text("If you are importing your input from Google Sheets or from a local csv file, use this information to get started. This app is designed to take input from a csv file that is formatted in this specific way:");
                         Text("• Each election race is represented by a row, starting from the second row");
                         Text("• The top (first) row is either left blank or is labelled with which value each column represents")
                         Text("• The columns should be represented by the values in this order:");
@@ -441,8 +441,8 @@ struct helpView: View{
                         }, label: {
                             Text("Open template download webpage");
                         }).buttonStyle(.borderedProminent);
-                        Image("downloadlink").resizable().aspectRatio(contentMode: .fit).frame(maxWidth: 300);
-                        Text("Once you have created the template file, you can use it for either the Google Sheets input tab or the Local CSV input tab. For more information on those tabs, you can read their respective sections in this help guide.\n");
+                        Image("downloadlink").resizable().aspectRatio(contentMode: .fit).frame(maxWidth: 280);
+                        Text("Once you have created the template file, you can use it for either the Google Sheets input tab or the Local CSV input tab. Read the following sections for more information.\n");
                         Text("Warning about commas").font(.title3).fontWeight(.semibold);
                         Text("DO NOT TYPE COMMAS INTO YOUR SPREADSHEET!").fontWeight(.semibold);
                         Text("The app will not be able to read your data if you do. This is because of the nature of csv files. The name csv stands for **comma-seperated values**, which means that boundaries of the cells are delineated by commas. That means that if you type a comma in the middle of a cell (e.g. typing \"Al Gore, Jr.\" instead of \"Al Gore Jr.\"), the program will think that that cell is two different cells.\n");
