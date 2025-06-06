@@ -12,12 +12,20 @@ func fetchSheets(_ input: String?) async throws -> String {
     if input == nil || input!.count < 40 || !(input!.hasPrefix("https://docs.google.com/spreadsheets/d/")){
         throw AppError.fetchError("invalid address");
     }
-    // check for and then strip away "/edit" ending
-    let index: String.Index? = input!.range(of: "/edit")?.lowerBound;
+    // check for and strip away "/edit..." ending
+    var index: String.Index? = input!.range(of: "/edit")?.lowerBound;
     if index == nil{
-        // link without "/edit" could technically be valid but it's easier
-        // to just throw out anything that doesnt have it
-        throw AppError.fetchError("invalid address");
+        // if link does not end with "/edit...", check if it at least ends with "/..."
+        let suffix: String = String(input![input!.index(input!.startIndex, offsetBy: 39)...]);
+        print(suffix);
+        index = suffix.firstIndex(of: "/");
+        if index == nil{
+            // if it ends with neither, throw error
+            throw AppError.fetchError("invalid address");
+        }
+        // if it ends with "/...", use that slash as the end delineator and ignore what's after it
+        let offset: Int = suffix.distance(from: suffix.startIndex, to: index!);
+        index = input!.index(input!.startIndex, offsetBy: (39 + offset));
     }
     // form google csv export url
     let url: URL? = URL(string: (String(input![..<index!]) + "/gviz/tq?tqx=out:csv"));
@@ -41,36 +49,63 @@ func parseCSVString(pointer: inout Array<Race>, string: String) -> Int{
     // split input string into lines
     let lines: [String.SubSequence] = string.split(whereSeparator: \.isNewline);
     // this is what delineates the boundary between two cells
-    var seperator: String = "\",\"";
-    var quotes: Bool = true;
+    var quotes: Bool;
+    var halt: Bool;
+    var return2: Bool = false;
     if lines.isEmpty || lines.count < 2{
         // catch invalid files
         print("ERROR");
         return 1;
     } else {
-        // some csv files are formatted "cell 1 data", "cell 2 data", "etc"
-        // but others are formatted cell 1 data, cell 2 data, etc
-        // if is the latter, change the seperator variable to not look for quotation marks
-        if lines[1].prefix(1) != "\""{
-            seperator = ","
-            quotes = false;
-        }
         for i in stride(from: 1, to: lines.count, by: 1){
-            let values = lines[i].split(separator: seperator);
-            var index0 = values[0];
-            var index9 = values[9];
-            if quotes == true{
-                index0.removeFirst();
-                index9.removeLast();
+            // some csv files are formatted "cell 1 data", "cell 2 data", "etc"
+            // but others are formatted cell 1 data, cell 2 data, etc
+            quotes = false;
+            halt = false;
+            if lines[i].prefix(1) == "\""{
+                // assume that if the line starts with a quotation mark,
+                // then the whole line is formatted with quotes
+                quotes = true;
             }
+            // split the line into strings representing the columns
+            var values = lines[i].components(separatedBy: ",");
             if values.count == 10{ // make sure the row has the right number of columns
-                // write row data into election data list
-                let temp: Race = Race(racename: String(index0), index: i, demname: String(values[1]), dempercent: Float(values[2]) ?? 0, demvotes: Int(values[3]) ?? 0, dempic: String(values[4]), gopname: String(values[5]), goppercent: Float(values[6]) ?? 0, gopvotes: Int(values[7]) ?? 0, goppic: String(values[8]), winner: String(index9));
-                pointer.append(temp);
+                if quotes == true{
+                    // if the line was formatted with quotes, strip the quotes from all the columns
+                    // temp array to store stripped columns
+                    var noquotes: [String] = [String]();
+                    for j in stride(from: 0, through: 9, by: 1){
+                        if values[j].count < 2{
+                            // if for whatever reason one of the columns has only one character,
+                            // halt the process for this line and mark the whole line as invalid
+                            halt = true;
+                            break;
+                        }
+                        // strip quotes from column and add it to temp array
+                        var tempstr: String = String(values[j]);
+                        tempstr.removeFirst();
+                        tempstr.removeLast();
+                        noquotes.append(tempstr);
+                    }
+                    // replace the values of this line with the no-quotes values
+                    values = noquotes;
+                }
+                if (halt == false){
+                    // write row data into election data list
+                    let temp: Race = Race(racename: values[0], index: i, demname: values[1], dempercent: Float(values[2]) ?? 0, demvotes: Int(values[3]) ?? 0, dempic: values[4], gopname: values[5], goppercent: Float(values[6]) ?? 0, gopvotes: Int(values[7]) ?? 0, goppic: values[8], winner: values[9]);
+                    pointer.append(temp);
+                } else{
+                    print("WARNING: invalid data in row " + String(i));
+                    return2 = true;
+                }
             } else {
                 print("WARNING: invalid data in row " + String(i));
+                return2 = true;
             }
         }
+    }
+    if (return2 == true){
+        return 2;
     }
     return 0;
 }

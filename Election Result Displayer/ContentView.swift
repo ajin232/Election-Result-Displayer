@@ -59,9 +59,9 @@ struct ContentView: View {
             // names/vote counts/percents of the candidates
             Text(current.race.demname).font(.system(size: 29)).multilineTextAlignment(.center).foregroundStyle(.white).frame(maxWidth: 310, maxHeight: 40).position(x: 311, y: 526);
             Text(current.race.gopname).font(.system(size: 29)).multilineTextAlignment(.center).foregroundStyle(.white).frame(maxWidth: 310, maxHeight: 40).position(x: 971, y: 526);
-            Text(String(current.race.demvotes) + " votes").font(.title).fontWeight(.semibold).foregroundColor(Color(red: 0.1607843137254902, green: 0.5019607843137255, blue: 0.7254901960784313)).multilineTextAlignment(.leading).frame(maxWidth: 240, maxHeight: 35, alignment: .leading).position(x: 286, y: 580);
+            Text(String(current.race.demvotes.formatted(.number)) + " votes").font(.title).fontWeight(.semibold).foregroundColor(Color(red: 0.1607843137254902, green: 0.5019607843137255, blue: 0.7254901960784313)).multilineTextAlignment(.leading).frame(maxWidth: 240, maxHeight: 35, alignment: .leading).position(x: 286, y: 580);
             Text(String(current.race.dempercent) + "%").font(.title).foregroundColor(Color(red: 0.1607843137254902, green: 0.5019607843137255, blue: 0.7254901960784313)).multilineTextAlignment(.leading).frame(maxWidth: 240, maxHeight: 35, alignment: .leading).position(x: 286, y: 610);
-            Text(String(current.race.gopvotes) + " votes").font(.title).fontWeight(.semibold).foregroundColor(Color(red: 0.7529411764705882, green: 0.2235294117647059, blue: 0.16862745098039217)).multilineTextAlignment(.leading).frame(maxWidth: 240, maxHeight: 35, alignment: .leading).position(x: 946, y: 580);
+            Text(String(current.race.gopvotes.formatted(.number)) + " votes").font(.title).fontWeight(.semibold).foregroundColor(Color(red: 0.7529411764705882, green: 0.2235294117647059, blue: 0.16862745098039217)).multilineTextAlignment(.leading).frame(maxWidth: 240, maxHeight: 35, alignment: .leading).position(x: 946, y: 580);
             Text(String(current.race.goppercent) + "%").font(.title).foregroundColor(Color(red: 0.7529411764705882, green: 0.2235294117647059, blue: 0.16862745098039217)).multilineTextAlignment(.leading).frame(maxWidth: 240, maxHeight: 35, alignment: .leading).position(x: 946, y: 610);
             // checkmark for winner if there is a winner among the two
             if current.race.winner == "D"{
@@ -133,10 +133,10 @@ struct importGoogleView: View{
     @State var disabled2: Bool = true;
     @State var task: Task<(), any Error>?;
     @State var selection: Race?;
-    @State var infotext: String = "Consult the Help tab if you run into any difficulties. ";
+    @State var infotext: String = "Do not type commas into your spreadsheet. See more info in the Help tab. ";
     @ObservedObject var races: ElectionData;
     @EnvironmentObject var current: CurrentRace;
-    let defaultinfo: String = "Consult the Help tab if you run into any difficulties. ";
+    let defaultinfo: String = "Do not type commas into your spreadsheet. See more info in the Help tab. ";
     var body: some View{
         VStack(alignment: .leading){
             GroupBox(label:
@@ -166,12 +166,15 @@ struct importGoogleView: View{
                                     //print(result);
                                     if returncode == 1{
                                         throw AppError.fetchError("csv has no data");
+                                    } else if returncode == 2{
+                                        infotext = defaultinfo + "WARNING: some rows are invalid";
                                     }
-                                    // if no error has been thrown so far, assume success
                                     // replace existing (if any) list of election races with the new ones that were just fetched
                                     races.replace(with: temp);
                                     // clear any error messages from infotext
-                                    infotext = defaultinfo;
+                                    if returncode == 0{
+                                        infotext = defaultinfo;
+                                    }
                                 } catch AppError.fetchError(let message){
                                     // if there was an error, print error to console and try to display it in infotext
                                     print(message);
@@ -233,10 +236,10 @@ struct localView: View{
     @State var showfinder: Bool = false;
     @State var selection: Race?;
     @State var disabled: Bool = true;
-    @State var infotext: String = "Consult the Help tab if you run into any difficulties. ";
+    @State var infotext: String = "Do not type commas into your spreadsheet. See more info in the Help tab. ";
     @ObservedObject var races: ElectionData;
     @EnvironmentObject var current: CurrentRace;
-    let defaultinfo: String = "Consult the Help tab if you run into any difficulties. ";
+    let defaultinfo: String = "Do not type commas into your spreadsheet. See more info in the Help tab. ";
     var body: some View{
         VStack(alignment: .leading){
             GroupBox(label:
@@ -289,12 +292,15 @@ struct localView: View{
                                 //print(result);
                                 if returncode == 1{
                                     throw AppError.fetchError("csv has no data");
+                                } else if returncode == 2{
+                                    infotext = defaultinfo + "WARNING: some rows are invalid";
                                 }
-                                // if no error has been thrown so far, assume success
                                 // replace existing (if any) list of election races with the new ones that were just fetched
                                 races.replace(with: temp);
                                 // clear any error messages from infotext
-                                infotext = defaultinfo;
+                                if returncode == 0{
+                                    infotext = defaultinfo;
+                                }
                             } catch AppError.fetchError(let message){
                                 // if there was an error, print error to console and try to display it in infotext
                                 print(message);
@@ -441,15 +447,16 @@ struct helpView: View{
                         }, label: {
                             Text("Open template download webpage");
                         }).buttonStyle(.borderedProminent);
-                        Image("downloadlink").resizable().aspectRatio(contentMode: .fit).frame(maxWidth: 280);
+                        Image("downloadlink").resizable().aspectRatio(contentMode: .fit).frame(maxWidth: 270);
                         Text("Once you have created the template file, you can use it for either the Google Sheets input tab or the Local CSV input tab. Read the following sections for more information.\n");
                         Text("Warning about commas").font(.title3).fontWeight(.semibold);
                         Text("DO NOT TYPE COMMAS INTO YOUR SPREADSHEET!").fontWeight(.semibold);
-                        Text("The app will not be able to read your data if you do. This is because of the nature of csv files. The name csv stands for **comma-seperated values**, which means that boundaries of the cells are delineated by commas. That means that if you type a comma in the middle of a cell (e.g. typing \"Al Gore, Jr.\" instead of \"Al Gore Jr.\"), the program will think that that cell is two different cells.\n");
+                        Text("The app will not be able to read your data if you do. For example, avoid typing **123,456** and type **123456** instead. Avoid typing **Al Gore, Jr.** and type **Al Gore Jr.** instead.\n");
                         Text("Information about number formatting").fontWeight(.semibold);
                         Text("Sometimes, Excel or Sheets will force numbers to be formatted with commas (e.g. 123,456 instead of 123456), and this will cause problems. Here is how to fix a cell where commas are being forced into the numbers:\n");
-                        Text("**In Excel:** Right click on the cell -> **Format Cells...** -> In the **Number** tab, look for the **Category** box and click **General** -> **OK**\n");
-                        Text("**In Google Sheets:** Click on the cell -> Go to the menu bar and click **Format** -> **Number** -> **Plain Text**\n");
+                        Text("**In Excel:** Right click on the cell -> **Format Cells...** -> **Number** -> **Category** box -> select **General** -> **OK**\n");
+                        Text("**In Google Sheets:** Click on the cell -> Go to the menu bar and click **Format** -> **Number** -> **Automatic**\n");
+                        Text("Sometimes Google Sheets can be glitchy or take a few seconds to save the changes. If the method above does not work, try first deleting the contents of the cell, then changing the formatting to Number->Automatic, and then retyping the number");
                         Text("Google Sheets input instructions").font(.title3).fontWeight(.semibold);
                         Text("First, download the template csv file (or create your own in the format specified above).");
                         Text("Then, upload that file to your Google Drive, and open it in Google Sheets. You can now start entering data.");
@@ -468,9 +475,11 @@ struct helpView: View{
                         Text("Manual input instructions").font(.title3).fontWeight(.semibold);
                         Text("This part of the app should be self explanatory. Also, the no-commas rule still holds.\n");
                         Text("Background video").font(.title3).fontWeight(.semibold);
-                        Text("If the background video freezes, quit the app and reopen it.\n")
+                        Text("If the background video freezes, quit the app and reopen it.\n");
+                        Text("Other issues").font(.title3).fontWeight(.semibold);
+                        Text("If the app is crashing without any other explanation, check to make sure your spreadsheet doesnt have any strange letters, punctuation or whitespace where there shouldn't be any, and then try quitting and restarting the app.\n");
                         Text("About").font(.title3).fontWeight(.semibold);
-                        Text("This app was written by Andrew Jin in June 2025.\n")
+                        Text("This app was written by Andrew Jin in June 2025.\n");
                     }
                 }.frame(maxWidth: 800, alignment: .topLeading);
             }
