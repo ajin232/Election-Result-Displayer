@@ -215,7 +215,7 @@ struct importGoogleView: View{
                     //print(selection);
                     if selection != nil{
                         // replace the current race being displayed with the one that was selected
-                        current.replace(selection!);
+                        current.replace(with: selection!);
                     }
                 }, label: {
                     Text("Display").font(.title2).padding().frame(maxWidth: .infinity);
@@ -323,7 +323,7 @@ struct localView: View{
                     //print(selection);
                     if selection != nil{
                         // replace the current race being displayed with the one that was selected
-                        current.replace(selection!);
+                        current.replace(with: selection!);
                     }
                 }, label: {
                     Text("Display").font(.title2).padding().frame(maxWidth: .infinity);
@@ -399,7 +399,7 @@ struct manualView: View{
                         selection.index = 1;
                         if (selection.convert() != nil){ // and the data is formatted correctly...
                             // then replace the current race being displayed with the one that was inputted
-                            current.replace(selection.convert()!);
+                            current.replace(with: selection.convert()!);
                         }
                     }
                 }, label: {

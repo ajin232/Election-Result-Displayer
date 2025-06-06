@@ -113,7 +113,7 @@ class CurrentRace: ObservableObject{
         self.race = self.placeholder;
     }
     
-    func replace(_ input: Race){
+    func replace(with input: Race){
         self.race = input;
     }
     
