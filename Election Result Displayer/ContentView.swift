@@ -12,6 +12,7 @@ import SwiftUI;
 import AVKit;
 
 struct ContentView: View {
+    // main window
     @Environment(\.managedObjectContext) private var viewContext
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
@@ -122,7 +123,6 @@ struct PanelView: View{
             }
         }
         .frame(minWidth: 800, maxWidth: 800, minHeight: 500, maxHeight: 500);
-        
     }
 }
 
@@ -225,7 +225,6 @@ struct importGoogleView: View{
                 }).buttonStyle(.bordered).keyboardShortcut(.defaultAction);
             }
         }.frame(maxWidth: 800, maxHeight: 500, alignment: .topLeading).padding(12);
-        
     }
 }
 
@@ -336,7 +335,6 @@ struct localView: View{
                 }).buttonStyle(.bordered).keyboardShortcut(.defaultAction);
             }
         }.frame(maxWidth: 800, maxHeight: 500, alignment: .topLeading).padding(12);
-        
     }
 }
 
