@@ -165,9 +165,9 @@ struct importGoogleView: View{
                                     let returncode: Int = parseCSVString(pointer: &temp, string: result); // returns 0 if no error
                                     //print(result);
                                     if returncode == 1{
-                                        throw AppError.fetchError("csv has no data");
+                                        throw AppError.fetchError("file has no data");
                                     } else if returncode == 2{
-                                        infotext = defaultinfo + "WARNING: some rows are invalid";
+                                        infotext = defaultinfo + "WARNING: at least one row in the spreadsheet is invalid";
                                     }
                                     // replace existing (if any) list of election races with the new ones that were just fetched
                                     races.replace(with: temp);
@@ -290,9 +290,9 @@ struct localView: View{
                                 let returncode: Int = parseCSVString(pointer: &temp, string: result); // returns 0 if no error
                                 //print(result);
                                 if returncode == 1{
-                                    throw AppError.fetchError("csv has no data");
+                                    throw AppError.fetchError("file has no data");
                                 } else if returncode == 2{
-                                    infotext = defaultinfo + "WARNING: some rows are invalid";
+                                    infotext = defaultinfo + "WARNING: at least one row in the spreadsheet is invalid";
                                 }
                                 // replace existing (if any) list of election races with the new ones that were just fetched
                                 races.replace(with: temp);
