@@ -48,7 +48,6 @@ func fetchSheets(_ input: String?) async throws -> String {
 func parseCSVString(pointer: inout Array<Race>, string: String) -> Int{
     // split input string into lines
     let lines: [String.SubSequence] = string.split(whereSeparator: \.isNewline);
-    // this is what delineates the boundary between two cells
     var quotes: Bool;
     var halt: Bool;
     var return2: Bool = false;
@@ -67,7 +66,7 @@ func parseCSVString(pointer: inout Array<Race>, string: String) -> Int{
                 // then the whole line is formatted with quotes
                 quotes = true;
             }
-            // split the line into strings representing the columns
+            // split the line along the commas into strings representing the columns
             var values = lines[i].components(separatedBy: ",");
             if values.count == 10{ // make sure the row has the right number of columns
                 if quotes == true{
