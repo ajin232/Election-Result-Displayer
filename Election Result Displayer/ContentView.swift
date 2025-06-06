@@ -504,10 +504,6 @@ struct NSVideoPlayer: NSViewRepresentable {
     }
 }
 
-enum AppError: Error {
-    case fetchError(String);
-}
-
 #Preview {
     //PanelView(googleraces: ElectionData(data: [Race]())).environment(\.managedObjectContext, PersistenceController.preview.container.viewContext);
     ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext).environmentObject(CurrentRace());

@@ -57,6 +57,10 @@ struct Election_Result_DisplayerApp: App {
     }
 }
 
+enum AppError: Error {
+    case fetchError(String);
+}
+
 class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         return true
