@@ -57,18 +57,27 @@ struct ContentView: View {
                 });
             // title of election race being displayed
             Text(current.race.racename).font(.system(size: 35, weight: .semibold)).frame(maxWidth: 640, maxHeight: 50).position(x: 640, y: 123).foregroundColor(.black);
-            // names/vote counts/percents of the candidates
-            Text(current.race.demname).font(.system(size: 29)).multilineTextAlignment(.center).foregroundStyle(.white).frame(maxWidth: 310, maxHeight: 40).position(x: 311, y: 526);
-            Text(current.race.gopname).font(.system(size: 29)).multilineTextAlignment(.center).foregroundStyle(.white).frame(maxWidth: 310, maxHeight: 40).position(x: 971, y: 526);
+            // names of the candidates, winner's (if any) name in semibold
+            if current.race.winner == "D"{
+                Text(current.race.demname).font(.system(size: 29, weight: .semibold)).multilineTextAlignment(.center).foregroundStyle(.white).frame(maxWidth: 310, maxHeight: 40).position(x: 311, y: 526);
+            } else{
+                Text(current.race.demname).font(.system(size: 29)).multilineTextAlignment(.center).foregroundStyle(.white).frame(maxWidth: 310, maxHeight: 40).position(x: 311, y: 526);
+            }
+            if current.race.winner == "R"{
+                Text(current.race.gopname).font(.system(size: 29, weight: .semibold)).multilineTextAlignment(.center).foregroundStyle(.white).frame(maxWidth: 310, maxHeight: 40).position(x: 971, y: 526);
+            } else{
+                Text(current.race.gopname).font(.system(size: 29)).multilineTextAlignment(.center).foregroundStyle(.white).frame(maxWidth: 310, maxHeight: 40).position(x: 971, y: 526);
+            }
+            // vote counts/percents of the candidates
             Text(String(current.race.demvotes.formatted(.number)) + " votes").font(.title).fontWeight(.semibold).foregroundColor(Color(red: 0.1607843137254902, green: 0.5019607843137255, blue: 0.7254901960784313)).multilineTextAlignment(.leading).frame(maxWidth: 240, maxHeight: 35, alignment: .leading).position(x: 286, y: 580);
             Text(String(current.race.dempercent) + "%").font(.title).foregroundColor(Color(red: 0.1607843137254902, green: 0.5019607843137255, blue: 0.7254901960784313)).multilineTextAlignment(.leading).frame(maxWidth: 240, maxHeight: 35, alignment: .leading).position(x: 286, y: 610);
             Text(String(current.race.gopvotes.formatted(.number)) + " votes").font(.title).fontWeight(.semibold).foregroundColor(Color(red: 0.7529411764705882, green: 0.2235294117647059, blue: 0.16862745098039217)).multilineTextAlignment(.leading).frame(maxWidth: 240, maxHeight: 35, alignment: .leading).position(x: 946, y: 580);
             Text(String(current.race.goppercent) + "%").font(.title).foregroundColor(Color(red: 0.7529411764705882, green: 0.2235294117647059, blue: 0.16862745098039217)).multilineTextAlignment(.leading).frame(maxWidth: 240, maxHeight: 35, alignment: .leading).position(x: 946, y: 610);
             // checkmark for winner if there is a winner among the two
             if current.race.winner == "D"{
-                Image(systemName: "checkmark").position(x: 440, y: 595).font(.system(size: 34)).foregroundColor(Color(red: 0.9451, green: 0.7686, blue: 0.0589));
+                Image(systemName: "checkmark").position(x: 437, y: 595).font(.system(size: 40)).foregroundColor(Color(red: 0.9451, green: 0.7686, blue: 0.0589)).fontWeight(.semibold);
             } else if current.race.winner == "R" {
-                Image(systemName: "checkmark").position(x: 1100, y: 595).font(.system(size: 34)).foregroundColor(Color(red: 0.9451, green: 0.7686, blue: 0.0589));
+                Image(systemName: "checkmark").position(x: 1097, y: 595).font(.system(size: 40)).foregroundColor(Color(red: 0.9451, green: 0.7686, blue: 0.0589)).fontWeight(.semibold);
             }
         }.frame(minWidth: 1280, maxWidth: 1280, minHeight: 720, maxHeight: 720);
     }
@@ -133,10 +142,10 @@ struct importGoogleView: View{
     @State var disabled2: Bool = true;
     @State var task: Task<(), any Error>?;
     @State var selection: Race?;
-    @State var infotext: String = "Do not type commas into your spreadsheet. See more info in the Help tab. ";
+    @State var infotext: String = "Do not type commas into your spreadsheet. See more info in the Help tab.";
     @ObservedObject var races: ElectionData;
     @EnvironmentObject var current: CurrentRace;
-    let defaultinfo: String = "Do not type commas into your spreadsheet. See more info in the Help tab. ";
+    let defaultinfo: String = "Do not type commas into your spreadsheet. See more info in the Help tab.";
     var body: some View{
         VStack(alignment: .leading){
             GroupBox(label:
@@ -167,7 +176,7 @@ struct importGoogleView: View{
                                     if returncode == 1{
                                         throw AppError.fetchError("file has no data");
                                     } else if returncode == 2{
-                                        infotext = defaultinfo + "WARNING: at least one row in the spreadsheet is invalid";
+                                        infotext = defaultinfo + "\nWARNING: at least one row in the spreadsheet is invalid";
                                     }
                                     // replace existing (if any) list of election races with the new ones that were just fetched
                                     races.replace(with: temp);
@@ -178,16 +187,16 @@ struct importGoogleView: View{
                                 } catch AppError.fetchError(let message){
                                     // if there was an error, print error to console and try to display it in infotext
                                     print(message);
-                                    infotext = defaultinfo + "ERROR: " + message;
+                                    infotext = defaultinfo + "\nERROR: " + message;
                                 } catch{
-                                    infotext = defaultinfo + "ERROR: unknown error";
+                                    infotext = defaultinfo + "\nERROR: unknown error";
                                 }
                                 // now that the task is done, disable the cancel button and enable the fetch button again
                                 disabled1 = false;
                                 disabled2 = true;
                             }
                         }, label: {
-                            Text("Fetch");
+                            Text("Fetch/Refresh");
                         }).disabled(disabled1);
                         // cancel button
                         Button(action: {
@@ -234,11 +243,10 @@ struct localView: View{
     @State var csvpath: URL?;
     @State var showfinder: Bool = false;
     @State var selection: Race?;
-    @State var disabled: Bool = true;
-    @State var infotext: String = "Do not type commas into your spreadsheet. See more info in the Help tab. ";
+    @State var infotext: String = "Do not type commas into your spreadsheet. See more info in the Help tab.";
     @ObservedObject var races: ElectionData;
     @EnvironmentObject var current: CurrentRace;
-    let defaultinfo: String = "Do not type commas into your spreadsheet. See more info in the Help tab. ";
+    let defaultinfo: String = "Do not type commas into your spreadsheet. See more info in the Help tab.";
     var body: some View{
         VStack(alignment: .leading){
             GroupBox(label:
@@ -254,7 +262,7 @@ struct localView: View{
                         Button(action: {
                             showfinder = true;
                         }, label: {
-                            Text("Choose file");
+                            Text("Open a file");
                         })
                         .fileImporter(isPresented: $showfinder, allowedContentTypes: [UTType.commaSeparatedText], onCompletion: { result in
                             // when choose file button is clicked, open finder window to let user select csv file
@@ -264,54 +272,47 @@ struct localView: View{
                                 csvpath = path;
                                 pathstring = path.absoluteString;
                                 //print(csvpath);
-                                disabled = false;
                                 infotext = defaultinfo;
                                 //print(path);
+                                do{
+                                    // request file access permissions if necessary
+                                    guard csvpath!.startAccessingSecurityScopedResource() else {
+                                        // if user denies permission, throw error
+                                        throw AppError.fetchError("file access denied")
+                                    }
+                                    // try to feed file contents into "result" string
+                                    let result: String = try String(contentsOf: csvpath!);
+                                    // once csv data has been copied, inform macos that file access is no longer needed
+                                    csvpath!.stopAccessingSecurityScopedResource();
+                                    // if successful, try to parse the string into custom "race" format
+                                    var temp: Array<Race> = [Race]();
+                                    let returncode: Int = parseCSVString(pointer: &temp, string: result); // returns 0 if no error
+                                    //print(result);
+                                    if returncode == 1{
+                                        throw AppError.fetchError("file has no data");
+                                    } else if returncode == 2{
+                                        infotext = defaultinfo + "\nWARNING: at least one row in the spreadsheet is invalid";
+                                    }
+                                    // replace existing (if any) list of election races with the new ones that were just fetched
+                                    races.replace(with: temp);
+                                    // clear any error messages from infotext
+                                    if returncode == 0{
+                                        infotext = defaultinfo;
+                                    }
+                                } catch AppError.fetchError(let message){
+                                    // if there was an error, print error to console and try to display it in infotext
+                                    print(message);
+                                    infotext = defaultinfo + "\nERROR: " + message;
+                                } catch{
+                                    print(error);
+                                    infotext = defaultinfo + "\nERROR: unknown error"
+                                }
                             case .failure(let error):
-                                disabled = true;
-                                infotext = defaultinfo + "ERROR: invalid file or file path";
+                                infotext = defaultinfo + "\nERROR: invalid file or file path";
                                 print(error);
                             }
                         })
-                        // read (open) file button
-                        Button(action: {
-                            do{
-                                // request file access permissions if necessary
-                                guard csvpath!.startAccessingSecurityScopedResource() else {
-                                    // if user denies permission, throw error
-                                    throw AppError.fetchError("file access denied")
-                                }
-                                // try to feed file contents into "result" string
-                                let result: String = try String(contentsOf: csvpath!);
-                                // once csv data has been copied, inform macos that file access is no longer needed
-                                csvpath!.stopAccessingSecurityScopedResource();
-                                // if successful, try to parse the string into custom "race" format
-                                var temp: Array<Race> = [Race]();
-                                let returncode: Int = parseCSVString(pointer: &temp, string: result); // returns 0 if no error
-                                //print(result);
-                                if returncode == 1{
-                                    throw AppError.fetchError("file has no data");
-                                } else if returncode == 2{
-                                    infotext = defaultinfo + "WARNING: at least one row in the spreadsheet is invalid";
-                                }
-                                // replace existing (if any) list of election races with the new ones that were just fetched
-                                races.replace(with: temp);
-                                // clear any error messages from infotext
-                                if returncode == 0{
-                                    infotext = defaultinfo;
-                                }
-                            } catch AppError.fetchError(let message){
-                                // if there was an error, print error to console and try to display it in infotext
-                                print(message);
-                                infotext = defaultinfo + "ERROR: " + message;
-                            } catch{
-                                infotext = defaultinfo + "ERROR: unknown error"
-                            }
-                        }, label: {
-                            Text("Read selected file");
-                        }).disabled(disabled);
                     }
-                    
                 }
                 .disableAutocorrection(true);
                 // display info and potential errors
@@ -458,26 +459,26 @@ struct helpView: View{
                         Text("Google Sheets input instructions").font(.title3).fontWeight(.semibold);
                         Text("First, download the template csv file (or create your own in the format specified above).");
                         Text("Then, upload that file to your Google Drive, and open it in Google Sheets. You can now start entering data.");
-                        Text("To connect the spreadsheet to the app, click the **Share** button in Google Sheets and create a link where **anyone with the link** can access the document.");
-                        Text("Then, copy that link and paste it into the Google Sheets input tab in the app, and press the **Fetch** button. You should now be able to see the election races listed in the app.");
+                        Text("To connect the spreadsheet to the app, click the **Share** button in Google Sheets (NOT Google Drive) and create a link where **anyone with the link** can access the document.");
+                        Text("Then, copy that link and paste it into the Google Sheets input tab in the app, and press the **Fetch/Refresh** button. You should now be able to see the election races listed in the app.");
                         Text("You can now select any election race you want to present, and then present it by clicking the **Display** button at the bottom of the app.");
-                        Text("To refresh the information after the spreadsheet has been updated, you can simply click the **Fetch** button again.");
                         Text("If you press the fetch button and the app hangs, it is probably an internet connection problem, or you may have entered an invalid link. In this case, click the **Cancel** button and try again.\n");
                         Text("Local CSV file input instructions").font(.title3).fontWeight(.semibold);
                         Text("First, download the template csv file (or create your own in the format specified above).");
                         Text("Then, open that file with Microsoft Excel and start entering data.");
-                        Text("To connect the file to the app, click the **Choose file** button in the Local CSV input tab, and navigate to where you saved your file. Then, once you have selected your file, click the **Read selected file** button.");
-                        Text("You can now select any election race you want to present, and then present it by clicking the **Display** button at the bottom of the app.");
-                        Text("To refresh the information after the spreadsheet has been updated, you can simply click the **Fetch** button again.");
+                        Text("To connect the file to the app, click the **Open a file** button in the Local CSV input tab and open your file in the finder popup window.");
+                        Text("You should now be able to select any election race you want to present, and then present it by clicking the **Display** button at the bottom of the app.");
+                        Text("If the file you want to open is greyed out in the finder window, it probably means that there is a problem with how you formatted it.")
+                        Text("To refresh the information, repeat the above steps.");
                         Text("If you run into an error, check the formatting of your file, or restart the app.\n");
                         Text("Manual input instructions").font(.title3).fontWeight(.semibold);
                         Text("This part of the app should be self explanatory. Also, the no-commas rule still holds.\n");
                         Text("Background video").font(.title3).fontWeight(.semibold);
-                        Text("If the background video freezes, quit the app and reopen it.\n");
+                        Text("If the background video freezes, quit the app (command + Q) and reopen it.\n");
                         Text("Other issues").font(.title3).fontWeight(.semibold);
-                        Text("If the app is crashing without any other explanation, check to make sure your spreadsheet doesnt have any strange letters, punctuation or whitespace where there shouldn't be any, and then try quitting and restarting the app.\n");
+                        Text("If the app is crashing without any other explanation, check to make sure your spreadsheet doesnt have any strange letters, punctuation or whitespace where there shouldn't be any, and then try quitting (command + Q) and reopening the app.\n");
                         Text("About").font(.title3).fontWeight(.semibold);
-                        Text("This app was written by Andrew Jin in June 2025.\n");
+                        Text("This app was written by Andrew Jin in June 2025.");
                     }
                 }.frame(maxWidth: 800, alignment: .topLeading);
             }
