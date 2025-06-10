@@ -11,7 +11,7 @@ func fetchSheets(_ input: String?) async throws -> String {
     // catch invalid input
     if input == nil || input!.count < 40 || !(input!.hasPrefix("https://docs.google.com/spreadsheets/d/")){
         if input != nil && input!.hasPrefix("https://drive.google.com/file/d/"){
-            throw AppError.fetchError("invalid address. that is a google drive address, not a google sheets address. open the spreadsheet in google sheets first, and then click share.");
+            throw AppError.fetchError("invalid address. that is a google drive address, not a google sheets address. open the spreadsheet in google sheets first, and then from there click share.");
         }
         throw AppError.fetchError("invalid address");
     }
@@ -24,7 +24,7 @@ func fetchSheets(_ input: String?) async throws -> String {
         index = suffix.firstIndex(of: "/");
         if index == nil{
             // if it ends with neither, throw error
-            throw AppError.fetchError("invalid address. make sure you are copying the link exactly as it is given by google, and not truncating it.");
+            throw AppError.fetchError("invalid address. make sure you are copying the link exactly as it is given by google without truncating it.");
         }
         // if it ends with "/...", use that slash as the end delineator and ignore what's after it
         let offset: Int = suffix.distance(from: suffix.startIndex, to: index!);
@@ -39,7 +39,7 @@ func fetchSheets(_ input: String?) async throws -> String {
     let (data, response) = try await URLSession.shared.data(from: url!);
     guard let httpResponse: HTTPURLResponse = response as? HTTPURLResponse,
           httpResponse.statusCode == 200 else {
-        throw AppError.fetchError("failed to retrieve data from spreadsheet (either invalid address or internet/google problem)");
+        throw AppError.fetchError("failed to retrieve data from spreadsheet (could be invalid address, internet problem or that the document is private).");
     }
     // try to write downloaded data into constant csv_as_string
     guard let csv_as_string: String = String(data: data, encoding: .utf8) else{
