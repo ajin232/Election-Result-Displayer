@@ -92,7 +92,7 @@ func parseCSVString(pointer: inout Array<Race>, string: String) -> Int{
                     // replace the values of this line with the no-quotes values
                     values = noquotes;
                 }
-                if (halt == false){
+                if halt == false{
                     // write row data into election data list
                     let temp: Race = Race(racename: values[0], index: i, demname: values[1], dempercent: Float(values[2]) ?? 0, demvotes: Int(values[3]) ?? 0, dempic: values[4], gopname: values[5], goppercent: Float(values[6]) ?? 0, gopvotes: Int(values[7]) ?? 0, goppic: values[8], winner: values[9]);
                     pointer.append(temp);
@@ -106,7 +106,7 @@ func parseCSVString(pointer: inout Array<Race>, string: String) -> Int{
             }
         }
     }
-    if (return2 == true){
+    if return2 == true{
         return 2;
     }
     return 0;
